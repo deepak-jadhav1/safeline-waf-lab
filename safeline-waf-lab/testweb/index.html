@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo Web Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f4f7;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background: #2c3e50;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-top: 0;
+        }
+        input, button {
+            padding: 10px;
+            width: 95%;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            width: 100%;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 13px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Demo Web Application</h1>
+        <p>Test this site with XSS, SQLi, and Path Traversal attacks</p>
+    </div>
+
+    <div class="container">
+        <h2>Search</h2>
+        <p>Enter anything here (WAF should block malicious payloads)</p>
+        
+        <form>
+            <input type="text" placeholder="Try: <script>alert(1)</script>" />
+            <button type="button">Submit</button>
+        </form>
+    </div>
+
+    <p class="footer">Static Demo App for SafeLine WAF Lab</p>
+
+</body>
+</html>
