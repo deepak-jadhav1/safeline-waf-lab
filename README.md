@@ -1,198 +1,202 @@
-SafeLine WAF Deployment, Configuration & Web Attack Detection Lab
+🛡️ SOC Analyst Web Attack Detection Project — SafeLine WAF + Python Web App
 
-This repository documents a complete, production-style deployment and evaluation of the SafeLine Web Application Firewall (WAF) on Kali Linux.
-The objective of this lab is to demonstrate the ability to deploy security controls, configure reverse-proxy protections, and detect/triage real web-based attacks—skills essential for SOC Analysts, Incident Responders, and Blue-Team engineers.
+This project demonstrates my hands-on ability to deploy, configure, and analyze Web Application Firewall (WAF) detections using SafeLine WAF in a realistic SOC environment.
+The objective of this lab is to simulate a full Blue Team workflow including WAF deployment, reverse proxy configuration, attack simulation, log analysis, and security event investigation.
 
-The project includes WAF setup, backend application hosting, controlled adversarial testing (XSS, SQLi, Path Traversal), event analysis, and security logging walkthroughs.
+🚀 Project Overview
 
-📌 Project Objectives
+This project replicates real-world SOC & Web Security Operations:
 
-This lab was created to simulate a real-world SOC workflow:
+Deployed SafeLine WAF using Docker
 
-Deploy and operationalize a WAF in a Linux environment
+Configured Reverse Proxy to inspect all inbound traffic
 
-Configure reverse-proxy traffic inspection
+Hosted a static Python web application as the protected asset
 
-Host a vulnerable static web application to generate attack telemetry
+Simulated real OWASP attacks:
 
-Execute controlled attacks representing common OWASP Top 10 vectors
+XSS
 
-Observe, analyze, and document WAF detections and block events
+SQL Injection
 
-Build repeatable steps for students and analysts learning defensive security
+Path Traversal
 
-🏗️ Architecture Overview
+Analyzed blocked & detected WAF events
 
-The following high-level architecture represents the traffic flow in this environment:
+Investigated malicious payloads
 
-Attacker → SafeLine WAF (Reverse Proxy) → Backend Web Server (Python)  
+Mapped detections to MITRE ATT&CK techniques
 
+Documented the final security findings
 
-A detailed diagram is provided in:
+This lab aligns with MITRE ATT&CK techniques:
 
-docs/architecture.png
+T1190 – Exploit Public-Facing Application
 
+T1059 – Input-Based Script Execution (XSS payloads)
 
-The WAF sits in front of the application, intercepting and inspecting all inbound traffic, applying rule-based detection to identify and block malicious payloads.
+T1505 – Server Component Abuse
 
-📂 Repository Structure
-safeline-waf-lab/
-│
-├── docs/
-│   ├── architecture.png               # Network & traffic flow diagram
-│   ├── screenshots/                   # Evidence of attacks, logs, UI
-│   │   ├── waf-dashboard.png
-│   │   ├── attack-logs.png
-│   │   └── test-app.png
-│   └── notes.md                       # Optional research notes
-│
-├── testweb/
-│   └── index.html                     # Static demo web application
-│
-└── README.md                          # Project documentation
+T1071 – Application Layer Protocol (HTTP)
 
-🛠️ Platform & Tools
-Component	Description
-OS	Kali Linux
-WAF	SafeLine (Docker-based deployment)
-Backend	Python http.server (static site)
-Traffic Mode	Reverse Proxy
-Attack Types Tested	XSS, SQLi, Path Traversal
-🚀 Deployment & Configuration Procedure
-1. Install Docker Engine
+T1040 – Traffic Inspection
 
-SafeLine runs via Docker containers, so Docker is required:
-
-sudo apt update
-sudo apt install docker.io docker-compose-plugin -y
-sudo systemctl enable --now docker
-
-2. Install SafeLine WAF (Official Script)
-sudo bash -c "$(curl -fsSLk https://waf.chaitin.com/release/latest/install.sh)"
-
-
-Upon completion, SafeLine provides administrative credentials:
-
-URL      : https://127.0.0.1:9443/
-Username : admin
-Password : ********
-
-
-Login using the provided URL.
-
-3. Deploy the Backend Web Application
-
-Hosted on a lightweight Python HTTP server:
-
-mkdir ~/testweb
-cd ~/testweb
+🏗️ 1. Environment Setup (WAF + Backend App)
+✔ Installed Docker Engine (SafeLine requirement)
+✔ Deployed SafeLine WAF using official script
+✔ Launched a Python static web app:
 python3 -m http.server 8000
 
+✔ Configured SafeLine as a Reverse Proxy
 
-The application contains a simple form to test injection payloads.
+All inbound traffic → WAF → Backend App.
 
-Accessible via:
+🔥 2. Web Attack Simulation (Adversarial Testing)
 
-http://127.0.0.1:8000
+These controlled attacks were executed against the WAF-protected site.
 
-4. Configure the WAF as a Reverse Proxy
+✔ Attack 1 — Cross-Site Scripting (XSS)
 
-Inside the SafeLine Web UI:
+Payload used:
 
-Applications → Add Application
-
-Field	Value
-Domain	*
-Listening Port	80
-Mode	Reverse Proxy
-Upstream Protocol	HTTP
-Upstream Host	127.0.0.1
-Upstream Port	8000
-
-This configuration forces all inbound HTTP traffic to pass through the WAF for inspection.
-
-⚔️ Adversarial Testing (Attack Simulation)
-
-This lab includes safe, controlled tests representing common web attack vectors.
-
-1. Cross-Site Scripting (XSS)
 http://localhost/?q=<script>alert(1)</script>
 
-2. SQL Injection (SQLi)
+✔ Attack 2 — SQL Injection (SQLi)
+
+Payload used:
+
 http://localhost/?id=1' OR '1'='1
 
-3. Path Traversal
+✔ Attack 3 — Path Traversal (LFI)
+
+Payload used:
+
 http://localhost/../../etc/passwd
 
 
-Each attack is intentionally crafted to trigger the WAF’s detection engine.
+SafeLine detected and blocked these malicious requests using built-in threat detection rules.
 
-📊 Security Event Analysis
+📊 3. WAF Detection & Event Analysis
 
-All alerts and blocked attack attempts are visible in:
+Analyzed events under:
 
-SafeLine Dashboard → Events → Security
+Events → Security Logs
 
-Captured information includes:
+SafeLine provided the following telemetry:
 
-Attack category (XSS, SQLi, LFI, traversal, etc.)
+Malicious payload signatures
 
-Detection rule triggered
+Blocked requests & categories
 
-Source IP
+Source IP & HTTP request details
 
-Payload
+XSS detection events
 
-Risk classification
+SQLi pattern matches
 
-Timestamp
+LFI / Path Traversal alerts
 
-HTTP request context
+Timestamps & WAF rule IDs
 
-Screenshots of blocked events are stored in:
+This allowed a full SOC-style investigation of the attack chain.
+
+🧬 4. Extracted Indicators of Attack (IOAs)
+🟥 XSS Payloads
+
+<script>alert(1)</script>
+"><img src=x onerror=alert(1)>
+
+🟥 SQL Injection Payloads
+
+' OR '1'='1
+" OR 1=1 --
+
+🟥 Traversal Payloads
+
+../../etc/passwd
+../..//windows/win.ini
+
+These IOAs represent common web exploitation techniques aligned with OWASP Top 10.
+
+⚙️ 5. Detection Engineering (WAF Rules & Config)
+
+Configured SafeLine to operate as:
+
+Reverse Proxy (HTTP Port 80)
+
+Upstream server: 127.0.0.1:8000
+
+Domain protection: *
+
+Strict inspection mode enabled
+
+The WAF automatically generated detections based on its ruleset:
+
+XSS rule matches
+
+SQL Injection rule matches
+
+LFI / Directory Traversal rule matches
+
+Suspicious request pattern matches
+
+📸 6. Screenshots (Evidence)
+
+Add your screenshots in this section:
+
+WAF Dashboard
+
+Application Configuration
+
+XSS alert detection
+
+SQLi alert detection
+
+Path traversal alert
+
+Request details page
+
+Attack logs timeline
+
+All stored under:
 
 docs/screenshots/
 
-🧠 Key Learning Outcomes
+📝 7. Incident Summary (What I Found)
 
-This hands-on project covers essential SOC skills:
+The WAF successfully detected and blocked multiple malicious HTTP requests, including:
 
-✔ WAF Deployment & Administration
+XSS attempts using script injection
 
-Understanding real defensive perimeter technology.
+SQL Injection patterns attempting to bypass logic
 
-✔ Reverse Proxy Traffic Inspection
+Path Traversal payloads aiming to access system files
 
-Ensuring all inbound traffic flows through security controls.
+SafeLine classified these attacks with high severity, preventing them from reaching the backend web server.
+This concludes a complete end-to-end WAF security validation and attack detection workflow.
 
-✔ Web Attack Simulation
+🧰 Skills Demonstrated
 
-Executing controlled adversarial behaviour for logging and analysis.
+Web Application Firewall (WAF) Operation
 
-✔ Log Analysis & Incident Triage
+Reverse Proxy Security Architecture
 
-Reading WAF telemetry and identifying malicious patterns.
+OWASP Attack Simulation
 
-✔ Documentation & Reporting
+Web Traffic Analysis
 
-Collecting screenshots, building diagrams, and publishing a structured defensive security lab.
+Log Triage & Security Event Investigation
 
-📦 Use Cases
+IOC Extraction & Threat Analysis
 
-This project is ideal for:
+MITRE ATT&CK Mapping
 
-SOC Analyst Training
+Defensive Security Engineering
 
-Blue Team Portfolio Building
+Python Simple Web Hosting
 
-Web Security Demonstration
+Documentation & Evidence Collection
 
-SIEM/WAF Integration Experiments
+👨‍💻 Author
 
-Cybersecurity Academic Projects
-
-🏁 Conclusion
-
-This lab provides an end-to-end demonstration of deploying, securing, and analyzing a web application using SafeLine WAF. Through realistic attack scenarios and detailed log analysis, the project showcases technical competence in Web Security, Blue Teaming, and SOC Operations.
-
-It serves as a professional-grade defensive security project suitable for resumes, cybersecurity portfolios, and
+Deepak Jadhav
